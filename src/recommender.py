@@ -1,7 +1,12 @@
 import pandas as pd
 import ast
+import nltk
+
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from nltk.stem.porter import PorterStemmer
+ps = PorterStemmer()
 
 movies = pd.read_csv("data/tmdb_5000_movies.csv")
 credits = pd.read_csv("data/tmdb_5000_credits.csv")
@@ -44,6 +49,13 @@ def fetch_director(text):
             break
 
     return L
+def stem(text):
+    y = []
+
+    for i in text.split():
+        y.append(ps.stem(i))
+
+    return " ".join(y)
 
 movies["genres"] = movies["genres"].apply(convert)
 movies["keywords"] = movies["keywords"].apply(convert)
@@ -65,6 +77,7 @@ new_df = movies[["movie_id", "title", "tags"]]
 
 new_df["tags"] = new_df["tags"].apply(lambda x: " ".join(x))
 new_df["tags"] = new_df["tags"].apply(lambda x: x.lower())
+new_df["tags"] = new_df["tags"].apply(stem)
 
 
 
@@ -76,6 +89,12 @@ similarity = cosine_similarity(vectors)
 
 
 def recommend(movie):
+    movie = movie.strip()
+
+    if movie not in new_df["title"].values:
+        print("Movie not found. Check spelling.")
+        return
+
     movie_index = new_df[new_df["title"] == movie].index[0]
     distances = similarity[movie_index]
     movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
