@@ -66,7 +66,7 @@ new_df = movies[["movie_id", "title", "tags"]]
 new_df["tags"] = new_df["tags"].apply(lambda x: " ".join(x))
 new_df["tags"] = new_df["tags"].apply(lambda x: x.lower())
 
-print(new_df.head())
+
 
 cv = CountVectorizer(max_features=5000, stop_words="english")
 
@@ -74,7 +74,7 @@ vectors = cv.fit_transform(new_df["tags"]).toarray()
 
 similarity = cosine_similarity(vectors)
 
-print(similarity.shape)
+
 def recommend(movie):
     movie_index = new_df[new_df["title"] == movie].index[0]
     distances = similarity[movie_index]
@@ -83,4 +83,5 @@ def recommend(movie):
     for i in movies_list:
         print(new_df.iloc[i[0]].title)
 
-recommend("Avatar")
+movie_name = input("Enter movie name: ")
+recommend(movie_name)
