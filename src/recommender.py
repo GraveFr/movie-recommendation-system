@@ -48,4 +48,20 @@ movies["keywords"] = movies["keywords"].apply(convert)
 movies["cast"] = movies["cast"].apply(convert_cast)
 movies["crew"] = movies["crew"].apply(fetch_director)
 
-print(movies[["title", "genres", "keywords", "cast", "crew"]].head())
+movies.dropna(inplace=True)
+
+movies["overview"] = movies["overview"].apply(lambda x: x.split())
+
+movies["genres"] = movies["genres"].apply(lambda x: [i.replace(" ", "") for i in x])
+movies["keywords"] = movies["keywords"].apply(lambda x: [i.replace(" ", "") for i in x])
+movies["cast"] = movies["cast"].apply(lambda x: [i.replace(" ", "") for i in x])
+movies["crew"] = movies["crew"].apply(lambda x: [i.replace(" ", "") for i in x])
+
+movies["tags"] = movies["overview"] + movies["genres"] + movies["keywords"] + movies["cast"] + movies["crew"]
+
+new_df = movies[["movie_id", "title", "tags"]]
+
+new_df["tags"] = new_df["tags"].apply(lambda x: " ".join(x))
+new_df["tags"] = new_df["tags"].apply(lambda x: x.lower())
+
+print(new_df.head())
